@@ -33,10 +33,6 @@ body {
     scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
 }
 
-.chat-container::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-}
-
 .user-chat-box {
     width: 70%;
     position: relative;
