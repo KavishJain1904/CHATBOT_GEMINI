@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 * {
     margin: 0;
@@ -114,7 +113,7 @@ body {
     top: -10px;
     filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1); /* 🟢 same as before */
+    background: rgba(255, 255, 255, 0.1); 
     padding: 5px;
     backdrop-filter: blur(10px);
 }
@@ -125,7 +124,7 @@ body {
     top: -10px;
     filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.9); /* 🟢 same as before */
+    background: rgba(255, 255, 255, 0.9); 
     padding: 5px;
     backdrop-filter: blur(10px);
 }
