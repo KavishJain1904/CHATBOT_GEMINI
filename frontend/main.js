@@ -15,33 +15,68 @@ let user = {
     }
 };
 
+// ✅ Improved scroll with slight delay and offset
+function scrollToBottom(delay = 50) {
+    setTimeout(() => {
+        chatContainer.scrollTo({
+            top: chatContainer.scrollHeight + 200, // Offset ensures full visibility above prompt
+            behavior: "smooth"
+        });
+    }, delay);
+}
+
+// ✅ Typing + scroll-friendly response
 async function generateResponse(aiChatBox) {
-    let text = aiChatBox.querySelector(".ai-chat-area");
+    const textContainer = aiChatBox.querySelector(".ai-chat-area");
 
     try {
-        let response = await fetch(Api_Url, {
+        const response = await fetch(Api_Url, {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(user)
         });
 
-        let data = await response.json();
+        const data = await response.json();
         console.log("API response:", data);
 
         if (data?.text) {
-            text.innerHTML = data.text;
+            const loader = textContainer.querySelector("img.load");
+            if (loader) loader.remove();
+
+            const typingSpan = document.createElement("span");
+            textContainer.appendChild(typingSpan);
+
+            const content = data.text;
+            let index = 0;
+
+            const observer = new MutationObserver(() => {
+                scrollToBottom(0); // No delay inside typing loop
+            });
+            observer.observe(textContainer, { childList: true, characterData: true, subtree: true });
+
+            function typeChar() {
+                if (index < content.length) {
+                    typingSpan.textContent += content.charAt(index++);
+                    scrollToBottom(0);
+                    setTimeout(typeChar, 15);
+                } else {
+                    observer.disconnect();
+                }
+            }
+
+            typeChar();
+
         } else if (data.error) {
-            text.innerHTML = `❌ Error: ${data.error}`;
+            textContainer.textContent = `❌ Error: ${data.error}`;
             console.error("Backend error:", data.details);
         } else {
-            text.innerHTML = "⚠️ No valid response from API.";
+            textContainer.textContent = "⚠️ No valid response from API.";
         }
 
     } catch (error) {
-        text.innerHTML = "🚫 Failed to connect to server.";
+        textContainer.textContent = "🚫 Failed to connect to server.";
         console.error("Fetch error:", error);
     } finally {
-        chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: "smooth" });
         image.src = `img.svg`;
         image.classList.remove("choose");
         user.file = {};
@@ -57,16 +92,17 @@ function createChatBox(html, classes) {
 
 function handlechatResponse(userMessage) {
     user.message = userMessage;
+
     let html = `<img src="user.png" alt="" id="userImage" width="8%">
-            <div class="user-chat-area">
-                ${user.message}
-                ${user.file.data ? `<img src="data:${user.file.mime_type};base64,${user.file.data}" class="chooseimg" />` : ""}
-            </div>`;
+        <div class="user-chat-area">
+            ${user.message}
+            ${user.file.data ? `<img src="data:${user.file.mime_type};base64,${user.file.data}" class="chooseimg" />` : ""}
+        </div>`;
 
     prompt.value = "";
     let userChatBox = createChatBox(html, "user-chat-box");
     chatContainer.appendChild(userChatBox);
-    chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: "smooth" });
+    scrollToBottom(); // ✅ With delay to allow layout update
 
     setTimeout(() => {
         let html = `<img src="ai.png" alt="" id="aiImage" width="10%">
@@ -75,18 +111,21 @@ function handlechatResponse(userMessage) {
             </div>`;
         let aiChatBox = createChatBox(html, "ai-chat-box");
         chatContainer.appendChild(aiChatBox);
+        scrollToBottom();
         generateResponse(aiChatBox);
-    }, 600);
+    }, 500);
 }
 
 prompt.addEventListener("keydown", (e) => {
-    if (e.key == "Enter") {
-        handlechatResponse(prompt.value);
+    if (e.key === "Enter" && prompt.value.trim()) {
+        handlechatResponse(prompt.value.trim());
     }
 });
 
 submitbtn.addEventListener("click", () => {
-    handlechatResponse(prompt.value);
+    if (prompt.value.trim()) {
+        handlechatResponse(prompt.value.trim());
+    }
 });
 
 imageinput.addEventListener("change", () => {
