@@ -12,7 +12,18 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(cors());
+app.use(cors({
+    origin: ['http://127.0.0.1:5501'],
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type']
+}));
+
+app.options('/generate', cors({
+    origin: ['http://127.0.0.1:5501'],
+    methods: ['POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type']
+}));
+
 app.use(bodyParser.json({ limit: '10mb' }));
 
 app.post("/generate", async (req, res) => {
