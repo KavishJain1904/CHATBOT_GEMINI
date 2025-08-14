@@ -15,17 +15,15 @@ let user = {
     }
 };
 
-// ✅ Improved scroll with slight delay and offset
 function scrollToBottom(delay = 50) {
     setTimeout(() => {
         chatContainer.scrollTo({
-            top: chatContainer.scrollHeight + 200, // Offset ensures full visibility above prompt
+            top: chatContainer.scrollHeight + 200, 
             behavior: "smooth"
         });
     }, delay);
 }
 
-// ✅ Typing + scroll-friendly response
 async function generateResponse(aiChatBox) {
     const textContainer = aiChatBox.querySelector(".ai-chat-area");
 
@@ -50,7 +48,7 @@ async function generateResponse(aiChatBox) {
             let index = 0;
 
             const observer = new MutationObserver(() => {
-                scrollToBottom(0); // No delay inside typing loop
+                scrollToBottom(0); 
             });
             observer.observe(textContainer, { childList: true, characterData: true, subtree: true });
 
@@ -102,7 +100,7 @@ function handlechatResponse(userMessage) {
     prompt.value = "";
     let userChatBox = createChatBox(html, "user-chat-box");
     chatContainer.appendChild(userChatBox);
-    scrollToBottom(); // ✅ With delay to allow layout update
+    scrollToBottom(); 
 
     setTimeout(() => {
         let html = `<img src="ai.png" alt="" id="aiImage" width="10%">
